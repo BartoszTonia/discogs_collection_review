@@ -115,4 +115,4 @@ out_path = Path(f'out/{temp_path.stem}_{timestamp}.csv')
 create_db(temp_path, out_path)
 if out_path.exists():
     temp_path.unlink()
-report(credentials.mail_out, credentials.mail_pass, "bartosz.tonia@gmail.com", out_path)
+report(credentials.mail_out, credentials.mail_pass, credentials.mail_in, out_path)
