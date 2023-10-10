@@ -1,6 +1,7 @@
 venv
 .idea
 *.pyc
+lib/credentials.py
 lib/collection_temp.csv
 */*.ipynb_checkpoints
 .ipynb_checkpoints
