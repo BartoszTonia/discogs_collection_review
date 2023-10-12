@@ -1,30 +1,48 @@
-FROM python:3.8-slim
+FROM ubuntu:bionic
+RUN apt-get update && apt-get install -y \
+python3 python3-pip \
+fonts-liberation libappindicator3-1 libasound2 libatk-bridge2.0-0 \
+libnspr4 libnss3 lsb-release xdg-utils libxss1 libdbus-glib-1-2 \
+curl unzip wget \
+xvfb
 
-# Set up the environment variables for Chrome to run in a container
-ENV DISPLAY=:99
+# Install geckodriver and firefox
+# ...
 
-# Install Chrome and ChromeDriver
-RUN apt-get update && apt-get install -y wget gnupg2 unzip \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' > /etc/apt/sources.list.d/google.list \
-    && apt-get update && apt-get install -y google-chrome-stable \
-    && CHROMEDRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE` \
-    && echo "Installing chromium-driver-$CHROMEDRIVER_VERSION" \
-    && wget -N http://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip -P ~/ \
-    && unzip ~/chromedriver_linux64.zip -d ~/ \
-    && rm ~/chromedriver_linux64.zip \
-    && mv -f ~/chromedriver /usr/local/bin/chromedriver \
-    && chown root:root /usr/local/bin/chromedriver \
-    && chmod 0755 /usr/local/bin/chromedriver
+# Install chromedriver and google-chrome
+RUN wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/118.0.5993.70/linux64/chromedriver-linux64.zip && \
+unzip chromedriver-linux64.zip -d /usr/bin && \
+cp /usr/bin/chromedriver-linux64/chromedriver /usr/bin/ && \
+chmod +x /usr/bin/chromedriver && \
+rm chromedriver-linux64.zip
 
-# Set the working directory in the container
-WORKDIR /app
+# Add the repositories and install the gpg key
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+# Install Chrome with apt-get to automatically handle dependencies
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
 
-# Command to run the scraper
-CMD ["python", "dcollection.py"]
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+# apt-get install -y ./google-chrome-stable_current_amd64.deb && \
+# apt-get clean && rm -rf /var/lib/apt/lists/* && \
+# rm ./google-chrome-stable_current_amd64.deb
+
+
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+ENV PYTHONUNBUFFERED=1
+ENV PATH="${PATH}:/usr/bin/chromedriver-linux64"
+
+ENV APP_HOME /usr/src/app
+WORKDIR /$APP_HOME
+
+COPY . $APP_HOME/
+
+RUN pip3 install -r requirements.txt
+
+CMD python3 dcollection.py

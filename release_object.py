@@ -1,5 +1,6 @@
 from datetime import datetime
 from time import time, sleep
+from lib.credentials import Credentials
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -15,35 +16,46 @@ logger = logging.getLogger(__name__)
 
 timeout = 8
 options = Options()
-options.add_argument('headless')
 options.add_argument('--no-sandbox')
-options.add_argument('--headless')
+# options.add_argument('--headless=new')
+# options.add_argument('--disable-gpu')
+# options.add_argument('--disable-extensions')
 options.add_argument('--disable-dev-shm-usage')
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 
+cred = Credentials()
+
+def close_session(driver):
+    driver.quit()
+    quit()
+
+
 def run_driver(url):
     print('>>> ', end='')
-    service = Service("driver\chromedriver.exe")
-    driver = webdriver.Chrome(options=options, service=service)
-    delay = 3  # seconds
     try:
+        # service = Service("/usr/bin/chromedriver")
+        # driver = webdriver.Chrome(options=options, service=service)
+
+        delay = 3  # seconds
+
+        driver = webdriver.Remote(cred.container, webdriver.DesiredCapabilities.CHROME, options=options)
+        driver.set_window_size(1280, 1024)
         driver.get(url)
+
     except WebDriverException as e:
         if "net::ERR_CONNECTION_TIMED_OUT" in str(e):
             print("Error: Connection timed out.")
         else:
             # This will handle other WebDriverException errors that aren't specifically a timeout.
-            print\
-                (f"WebDriver error occurred: {e}")
-        quit()
+            print(f"WebDriver error occurred: {e}")
     except KeyboardInterrupt:
         print('Ctrl+C......')
+        driver.quit()
         quit()
     except Exception as e:
         # This is a generic exception handler.
         print(f"An unexpected error occurred: {e}")
-        quit()
 
     try:
         WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.CSS_SELECTOR, Selector().sale)))
@@ -116,6 +128,9 @@ class ReleaseObject:
         self.format = self.extract_format_details()
         self.date_of_release = self.get_datetime()
         self.driver.quit()
+
+    def quit_driver(self):
+        close_session(self.driver)
 
     def get_data(self, select, pattern=None):
         try:
