@@ -34,13 +34,14 @@ def close_session(driver):
 def run_driver(url):
     print('>>> ', end='')
     try:
-        # service = Service("/usr/bin/chromedriver")
-        # driver = webdriver.Chrome(options=options, service=service)
+        service = Service("/usr/bin/chromedriver")
+        driver = webdriver.Chrome(options=options, service=service)
 
         delay = 3  # seconds
 
-        driver = webdriver.Remote(cred.container, webdriver.DesiredCapabilities.CHROME, options=options)
-        driver.set_window_size(1280, 1024)
+        # driver = webdriver.Remote(cred.container, webdriver.DesiredCapabilities.CHROME, options=options)
+        # driver.set_window_size(1280, 1024)
+
         driver.get(url)
 
     except WebDriverException as e:
@@ -49,10 +50,12 @@ def run_driver(url):
         else:
             # This will handle other WebDriverException errors that aren't specifically a timeout.
             print(f"WebDriver error occurred: {e}")
+
     except KeyboardInterrupt:
         print('Ctrl+C......')
         driver.quit()
         quit()
+
     except Exception as e:
         # This is a generic exception handler.
         print(f"An unexpected error occurred: {e}")
