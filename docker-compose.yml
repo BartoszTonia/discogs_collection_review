@@ -1,0 +1,6 @@
+version: '3'
+services:
+  your_service_name:
+    image: dcollect-flask-app
+    env_file:
+      - .env
