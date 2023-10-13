@@ -1,8 +1,10 @@
+from decouple import config
+
 class Credentials:
     def __init__(self):
-        self.user = 'x'
-        self.token = 'x'
-        self.mail_out = 'x'
-        self.mail_pass = 'x'
-        self.mail_in = 'x'
-        self.container = 'x'
+        self.user = config('USER')
+        self.token = config('TOKEN')
+        self.mail_out = config('MAIL_OUT')
+        self.mail_pass = config('MAIL_PASS')
+        self.mail_in = config('MAIL_IN')
+        self.container_host = config('CONTAINER_HOST')
