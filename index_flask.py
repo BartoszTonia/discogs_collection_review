@@ -1,21 +1,36 @@
-from flask import Flask, render_template, request
-import subprocess
+from flask import Flask, render_template, request, session
+from lib.credentials import Credentials
 from decouple import config
+import subprocess
+import os
+
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        username = request.form.get('username')
-        token = request.form.get('token')
-        mail = request.form.get('mail')
+        # Check if a job is already running for this session
+        if session.get('job_running'):
+            return "A job is already running. Please wait."
+
+        # Mark that a job is running
+        session['job_running'] = True
+
+        # Load default credentials
+        creds = Credentials()
+
+        # Get form values or use defaults if they are empty
+        username = request.form.get('username') or creds.user
+        token = request.form.get('token') or creds.token
+        mail = request.form.get('mail') or creds.mail_out
 
         # Validate the inputs (still an essential step that's not shown here)
 
         # cmd = ["docker", "run", "dcollect-app", "--username", username, "--token", token, "--mail", mail]
-        cmd = ["python", "dcollection.py", "--username", username, "--token", token, "--mail", mail]
+        cmd = ["python", "dcollection.py", "--user", username, "--token", token, "--mail", mail]
 
         # subprocess.run(cmd)
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -25,6 +40,7 @@ def index():
             # Handle error
             return f"An error occurred: {stderr.decode('utf-8')}"
         else:
+            session['job_running'] = False
             return f"Container started with output: {stdout.decode('utf-8')}"
 
     return render_template('input_form.html')

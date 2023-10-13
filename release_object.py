@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 timeout = 8
 options = Options()
 options.add_argument('--no-sandbox')
-# options.add_argument('--headless=new')
-# options.add_argument('--disable-gpu')
-# options.add_argument('--disable-extensions')
+options.add_argument('--headless=new')
+options.add_argument('--disable-gpu')
+options.add_argument('--disable-extensions')
 options.add_argument('--disable-dev-shm-usage')
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
