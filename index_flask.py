@@ -4,9 +4,11 @@ from decouple import config
 import subprocess
 import os
 
+# Load default credentials
+creds = Credentials()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+app.config['SECRET_KEY'] = creds.secret
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -18,9 +20,6 @@ def index():
 
         # Mark that a job is running
         session['job_running'] = True
-
-        # Load default credentials
-        creds = Credentials()
 
         # Get form values or use defaults if they are empty
         username = request.form.get('username') or creds.user

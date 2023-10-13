@@ -37,7 +37,7 @@ def args_parser():
         user = credentials.user
 
     if args.mail is None:
-        user = credentials.mail_in
+        mail = credentials.mail_in
 
     return user, token, mail
 
