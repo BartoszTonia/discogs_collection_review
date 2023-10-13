@@ -18,14 +18,17 @@ def args_parser():
     description = "Review most valuable records in Discogs collection"
     token_h = "Paste your developer token (get your token at https://www.discogs.com/settings/developers)"
     user_h = "User name"
+    mail_h = "Mail recipient of the pricelist"
 
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('-t', '--token', dest="token", type=str, help=token_h)
     parser.add_argument('-u', '--user', dest="user", type=str, help=user_h)
+    parser.add_argument('-m', '--mail', dest="mail", type=str, help=mail_h)
 
     args = parser.parse_args()
     token = args.token
     user = args.user
+    mail = args.mail
 
     if args.token is None:
         token = credentials.token
@@ -33,10 +36,13 @@ def args_parser():
     if args.user is None:
         user = credentials.user
 
-    return user, token
+    if args.mail is None:
+        user = credentials.mail_in
+
+    return user, token, mail
 
 
-user, developer_token = args_parser()
+user, developer_token, mail_in = args_parser()
 
 
 def get_releases():
@@ -115,4 +121,4 @@ out_path = Path(f'out/{temp_path.stem}_{timestamp}.csv')
 create_db(temp_path, out_path)
 if out_path.exists():
     temp_path.unlink()
-report(credentials.mail_out, credentials.mail_pass, credentials.mail_in, out_path)
+report(credentials.mail_out, credentials.mail_pass, mail_in, out_path)
