@@ -1,5 +1,6 @@
 venv
 .idea
+.env
 *.pyc
 lib/credentials.py
 lib/collection_temp.csv
